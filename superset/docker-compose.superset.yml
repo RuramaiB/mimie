@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  superset:
+    image: apache/superset:latest
+    container_name: superset-service
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=9a7c36a4f91048b3b4d45d8b725c8397a6e191d918c5e3faef625a62bc2b88dc
+      - MAPBOX_API_KEY=""
+    volumes:
+      - superset_data:/app/superset_home
+    networks:
+      - dbnet
+    restart: always
+
+networks:
+  dbnet:
+    external: true
+
+volumes:
+  superset_data:

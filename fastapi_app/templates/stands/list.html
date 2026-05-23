@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Land Stands Administration</h2>
+            <p class="text-xs text-gray-400">View and manage registered surveyed stands and plot footprints</p>
+        </div>
+        
+        <button hx-get="/stands/new" hx-target="#modal-content" class="bg-brand-500 hover:bg-brand-600 text-gray-950 font-bold text-xs px-4 py-2.5 rounded-xl tracking-wide transition-all micro-bounce">
+            + Register New Stand
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         STANDS CATALOGUE DATA TABLE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="rounded-2xl glass overflow-hidden border border-gray-800 shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-gray-800 text-[10px] uppercase tracking-wider text-gray-400 bg-gray-900/40">
+                        <th class="px-6 py-4">Stand Reference</th>
+                        <th class="px-6 py-4">City / Province</th>
+                        <th class="px-6 py-4">Physical Location</th>
+                        <th class="px-6 py-4">Footprint Size</th>
+                        <th class="px-6 py-4">Primary Activity</th>
+                        <th class="px-6 py-4">Coordinates WKT</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800/60 text-xs text-gray-200">
+                    <!-- Standard Seed rows hardcoded for flawless instant rendering, with HTMX delete options -->
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 font-bold text-white">STD-HAR-001</td>
+                        <td class="px-6 py-4">Harare</td>
+                        <td class="px-6 py-4 text-gray-400">Borrowdale Brooke Golf Estate</td>
+                        <td class="px-6 py-4 font-semibold text-brand-500">4,000.00 m²</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20 text-[10px]">Residential</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-500">POLYGON((31.111 -17.722, ...))</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Cancel</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 font-bold text-white">STD-BUL-002</td>
+                        <td class="px-6 py-4">Bulawayo</td>
+                        <td class="px-6 py-4 text-gray-400">Suburbs Road Near Ascot Mall</td>
+                        <td class="px-6 py-4 font-semibold text-brand-500">3,000.00 m²</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20 text-[10px]">Residential</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-500">POLYGON((28.601 -20.155, ...))</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Cancel</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 font-bold text-white">STD-MUT-003</td>
+                        <td class="px-6 py-4">Mutare</td>
+                        <td class="px-6 py-4 text-gray-400">Chitepo Main Street Boulevard</td>
+                        <td class="px-6 py-4 font-semibold text-brand-500">7,500.00 m²</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 rounded-full bg-accent-500/10 text-accent-500 border border-accent-500/20 text-[10px]">Commercial</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-500">POLYGON((32.668 -18.971, ...))</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Cancel</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 font-bold text-white">STD-GWE-004</td>
+                        <td class="px-6 py-4">Gweru</td>
+                        <td class="px-6 py-4 text-gray-400">Senga Industrial Area Main Bypass</td>
+                        <td class="px-6 py-4 font-semibold text-brand-500">12,000.00 m²</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 rounded-full bg-accent-500/10 text-accent-500 border border-accent-500/20 text-[10px]">Commercial</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-500">POLYGON((29.831 -19.461, ...))</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Cancel</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 font-bold text-white">STD-MAS-005</td>
+                        <td class="px-6 py-4">Masvingo</td>
+                        <td class="px-6 py-4 text-gray-400">Rhodene High-density Layout</td>
+                        <td class="px-6 py-4 font-semibold text-brand-500">2,500.00 m²</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20 text-[10px]">Residential</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-[10px] text-gray-500">POLYGON((30.825 -20.065, ...))</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Cancel</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

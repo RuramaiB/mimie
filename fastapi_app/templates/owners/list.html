@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Registered Owners Registry</h2>
+            <p class="text-xs text-gray-400">Manage deed listings and priority points for disabled citizens</p>
+        </div>
+        
+        <button hx-get="/owners/new" hx-target="#modal-content" class="bg-brand-500 hover:bg-brand-600 text-gray-950 font-bold text-xs px-4 py-2.5 rounded-xl tracking-wide transition-all micro-bounce">
+            + Register New Owner
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         OWNERS DATA TABLE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="rounded-2xl glass overflow-hidden border border-gray-800 shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-gray-800 text-[10px] uppercase tracking-wider text-gray-400 bg-gray-900/40">
+                        <th class="px-6 py-4">ID</th>
+                        <th class="px-6 py-4">Fullname (PII)</th>
+                        <th class="px-6 py-4">Date of Birth</th>
+                        <th class="px-6 py-4">Gender</th>
+                        <th class="px-6 py-4">Disability Priority</th>
+                        <th class="px-6 py-4">Province</th>
+                        <th class="px-6 py-4">District</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800/60 text-xs text-gray-200">
+                    <!-- Standard Zimbabwean Seed data hardcoded for presentation matching the DBMS seed inputs -->
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 text-gray-500 font-mono">1</td>
+                        <td class="px-6 py-4 font-bold text-white">Tendai Mupfumi</td>
+                        <td class="px-6 py-4">1980-04-12</td>
+                        <td class="px-6 py-4 text-gray-400">Male</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full bg-gray-800 text-gray-400 text-[10px]">Standard</span>
+                        </td>
+                        <td class="px-6 py-4">Harare</td>
+                        <td class="px-6 py-4">Harare Central</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Revoke</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 text-gray-500 font-mono">2</td>
+                        <td class="px-6 py-4 font-bold text-white">Chipo Sibanda</td>
+                        <td class="px-6 py-4">1988-11-23</td>
+                        <td class="px-6 py-4 text-gray-400">Female</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] font-semibold">♿ Priority Assist</span>
+                        </td>
+                        <td class="px-6 py-4">Bulawayo</td>
+                        <td class="px-6 py-4">Bulawayo Central</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Revoke</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 text-gray-500 font-mono">3</td>
+                        <td class="px-6 py-4 font-bold text-white">Farai Mutasa</td>
+                        <td class="px-6 py-4">1975-06-30</td>
+                        <td class="px-6 py-4 text-gray-400">Male</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full bg-gray-800 text-gray-400 text-[10px]">Standard</span>
+                        </td>
+                        <td class="px-6 py-4">Manicaland</td>
+                        <td class="px-6 py-4">Mutare</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Revoke</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 text-gray-500 font-mono">4</td>
+                        <td class="px-6 py-4 font-bold text-white">Nyarai Zhou</td>
+                        <td class="px-6 py-4">1992-01-15</td>
+                        <td class="px-6 py-4 text-gray-400">Female</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full bg-gray-800 text-gray-400 text-[10px]">Standard</span>
+                        </td>
+                        <td class="px-6 py-4">Midlands</td>
+                        <td class="px-6 py-4">Gweru</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Revoke</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-800/30 transition-all">
+                        <td class="px-6 py-4 text-gray-500 font-mono">5</td>
+                        <td class="px-6 py-4 font-bold text-white">Tinashe Moyo</td>
+                        <td class="px-6 py-4">1982-08-05</td>
+                        <td class="px-6 py-4 text-gray-400">Male</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] font-semibold">♿ Priority Assist</span>
+                        </td>
+                        <td class="px-6 py-4">Masvingo</td>
+                        <td class="px-6 py-4">Masvingo</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-red-500 hover:text-red-400 font-semibold transition-all">Revoke</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

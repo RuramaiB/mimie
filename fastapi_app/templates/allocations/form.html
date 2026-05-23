@@ -1,0 +1,36 @@
+<div class="glass p-6 rounded-2xl border border-gray-800 shadow-2xl relative">
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-all">&times;</button>
+    
+    <div class="mb-4">
+        <h3 class="text-base font-bold text-white">Allocate Land Subdivision</h3>
+        <p class="text-xs text-gray-400">Creates an allocation transaction and updates plot allocation states</p>
+    </div>
+
+    <!-- Pushes directly to MySQL allocations endpoints via HTMX -->
+    <form hx-post="/mysql/allocations/" hx-target="#form-result" hx-ext="json-enc" class="space-y-4 text-xs">
+        <div>
+            <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Owner ID</label>
+            <input type="number" name="stand_owner_id" placeholder="2" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Subdivision ID</label>
+            <input type="number" name="subdivision_id" placeholder="2" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+        </div>
+
+        <div>
+            <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Price per m² (USD)</label>
+            <input type="number" step="0.01" name="price_per_m2" placeholder="120.00" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 mt-6">
+            <button type="button" onclick="closeModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2.5 rounded-xl transition-all">
+                Cancel
+            </button>
+            <button type="submit" class="w-1/2 bg-brand-500 hover:bg-brand-600 text-gray-950 font-bold py-2.5 rounded-xl transition-all">
+                Create Allocation
+            </button>
+        </div>
+    </form>
+    <div id="form-result" class="mt-4 text-xs"></div>
+</div>

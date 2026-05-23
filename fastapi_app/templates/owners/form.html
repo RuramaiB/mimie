@@ -1,0 +1,60 @@
+<div class="glass p-6 rounded-2xl border border-gray-800 shadow-2xl relative">
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-all">&times;</button>
+    
+    <div class="mb-4">
+        <h3 class="text-base font-bold text-white">Register New Stand Owner</h3>
+        <p class="text-xs text-gray-400">Stores owner personal details under secure Row-Level Security policies</p>
+    </div>
+
+    <!-- Calls MySQL owners REST post endpoint directly with JSON payload -->
+    <form hx-post="/mysql/owners/" hx-target="#form-result" hx-ext="json-enc" class="space-y-4 text-xs">
+        <div>
+            <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Full Firstname & Surname</label>
+            <input type="text" name="firstname" placeholder="Tendai Sibanda" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Date of Birth</label>
+                <input type="date" name="date_of_birth" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+            </div>
+            <div>
+                <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Gender</label>
+                <select name="gender" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">Province</label>
+                <input type="text" name="province" placeholder="Harare" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+            </div>
+            <div>
+                <label class="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">District</label>
+                <input type="text" name="district" placeholder="Harare Central" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500" required>
+            </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20 flex items-center justify-between">
+            <div>
+                <h5 class="font-bold text-purple-400 text-[11px]">Disability Priority Status</h5>
+                <p class="text-[10px] text-gray-400">Marking 'Yes' enables priority points for land allotment queues</p>
+            </div>
+            <input type="checkbox" name="disability_status" class="w-4 h-4 bg-gray-900 border border-gray-800 rounded text-purple-500 focus:ring-0">
+        </div>
+
+        <div class="flex items-center justify-between gap-4 mt-6">
+            <button type="button" onclick="closeModal()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2.5 rounded-xl transition-all">
+                Cancel
+            </button>
+            <button type="submit" class="w-1/2 bg-brand-500 hover:bg-brand-600 text-gray-950 font-bold py-2.5 rounded-xl transition-all">
+                Register Owner
+            </button>
+        </div>
+    </form>
+    <div id="form-result" class="mt-4 text-xs"></div>
+</div>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbabwe Ministry of Lands — Stand Management System</title>
+    
+    <!-- Premium Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN for fast utility layouts) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX for dynamic asynchronous updates without full page reloads -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Leaflet.js for beautiful interactive Map visualizations (PostGIS boundaries) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F0FDF4',
+                            100: '#DCFCE7',
+                            500: '#22C55E',
+                            900: '#14532D',
+                        },
+                        accent: {
+                            50: '#FFFBEB',
+                            500: '#F59E0B',
+                            900: '#78350F',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Modern Glassmorphic Backdrop and animations */
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background: radial-gradient(circle at top right, #111827, #030712);
+            color: #F3F4F6;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #4B5563;
+            border-radius: 3px;
+        }
+        .micro-bounce:hover {
+            transform: translateY(-2px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans select-none antialiased overflow-x-hidden">
+    
+    <!-- ═══════════════════════════════════════════════════════
+         HEADER / NAVIGATION
+         ═══════════════════════════════════════════════════════ -->
+    <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <span class="text-xl font-bold text-gray-950">🇿🇼</span>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    Ministry of Lands
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-500 border border-brand-500/30">MCS 504</span>
+                </h1>
+                <p class="text-xs text-gray-400">Land Stand Management & Multi-DBMS Engine</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-ping"></span>
+                <span class="text-xs text-gray-300">5 DBs Connected</span>
+            </div>
+            <div class="h-6 w-[1px] bg-gray-800"></div>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
+                    <span class="text-xs font-semibold text-gray-300">AD</span>
+                </div>
+                <div class="text-left hidden sm:block">
+                    <p class="text-xs font-medium text-white">Administrator</p>
+                    <p class="text-[10px] text-brand-500">land_admin</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- ═══════════════════════════════════════════════════════
+             SIDEBAR NAVIGATION
+             ═══════════════════════════════════════════════════════ -->
+        <aside class="w-64 glass border-t-0 border-l-0 hidden md:flex flex-col justify-between py-6 px-4 shrink-0">
+            <nav class="space-y-2">
+                <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-300 hover:bg-brand-500/10 hover:text-white transition-all micro-bounce">
+                    📊 Dynamic Dashboard
+                </a>
+                <a href="/stands" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-300 hover:bg-brand-500/10 hover:text-white transition-all micro-bounce">
+                    🏡 Land Stands Catalogue
+                </a>
+                <a href="/owners" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-300 hover:bg-brand-500/10 hover:text-white transition-all micro-bounce">
+                    👥 Owner Portfolio Registry
+                </a>
+            </nav>
+            
+            <div class="p-4 rounded-xl bg-gray-900/50 border border-gray-800/80">
+                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Connected Engines</h4>
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">PostgreSQL (GIS)</span>
+                        <span class="text-brand-500 font-bold">ONLINE</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">MySQL 8</span>
+                        <span class="text-brand-500 font-bold">ONLINE</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">Oracle XE 21</span>
+                        <span class="text-brand-500 font-bold">ONLINE</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">MS SQL Server</span>
+                        <span class="text-brand-500 font-bold">ONLINE</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400">MongoDB 7</span>
+                        <span class="text-brand-500 font-bold">ONLINE</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ═══════════════════════════════════════════════════════
+             MAIN CONTENT VIEWPORT
+             ═══════════════════════════════════════════════════════ -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-gradient-to-b from-gray-900/20 to-transparent">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Modals Viewport -->
+    <div id="modal-container" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div id="modal-content" class="w-full max-w-xl mx-4"></div>
+    </div>
+
+    <script>
+        // Global helper scripts for HTMX Modal handling
+        document.addEventListener('htmx:afterSwap', function(e) {
+            if (e.detail.target.id === 'modal-content') {
+                document.getElementById('modal-container').classList.remove('hidden');
+                document.getElementById('modal-container').classList.add('flex');
+            }
+        });
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+            document.getElementById('modal-container').classList.remove('flex');
+            document.getElementById('modal-content').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

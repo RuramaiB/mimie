@@ -1,0 +1,73 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Ministry of Lands - Zimbabwe Stand System" version="3.28.0-Firenze">
+  <homePath value=""/>
+  <title>Ministry of Lands - Zimbabwe Stand System</title>
+  
+  <!-- ═══════════════════════════════════════════════════════
+       QGIS PROJECT CONFIGURATION - DATABASE CONNECTIONS
+       ═══════════════════════════════════════════════════════ -->
+  <projectDb value=""/>
+  
+  <!-- Register standard projection engine: EPSG:4326 (WGS-84) -->
+  <spatialrefsys>
+    <wkt>GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",MEMBER["World Geodetic System 1984 (Transit)"],MEMBER["World Geodetic System 1984 (G730)"],MEMBER["World Geodetic System 1984 (G873)"],MEMBER["World Geodetic System 1984 (G1150)"],MEMBER["World Geodetic System 1984 (G1674)"],MEMBER["World Geodetic System 1984 (G1762)"],MEMBER["World Geodetic System 1984 (G2139)"],MEMBER["World Geodetic System 1984 (G2296)"],ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1]],ENSEMBLEACCURACY[2.0]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Horizontal component of 3D system."],AREA["World."],BBOX[-90,-180,90,180]],ID["EPSG",4326]]</wkt>
+    <proj4>+proj=longlat +datum=WGS84 +no_defs</proj4>
+    <srsid>3452</srsid>
+    <srid>4326</srid>
+    <authid>EPSG:4326</authid>
+    <description>WGS 84</description>
+    <projectionacronym>longlat</projectionacronym>
+    <ellipsoidacronym>EPSG:7030</ellipsoidacronym>
+    <geographic>true</geographic>
+  </spatialrefsys>
+
+  <layer-tree-group>
+    <customproperties>
+      <wmsCurrentLegendInClick value="false"/>
+    </customproperties>
+    <layer-tree-layer id="stands_polygon_layer" name="Surveyed Stands (PostGIS)" providerKey="postgres" checked="Qt::Checked">
+      <customproperties>
+        <property key="overview" value="0"/>
+      </customproperties>
+    </layer-tree-layer>
+  </layer-tree-group>
+
+  <!-- ═══════════════════════════════════════════════════════
+       POSTGIS DATA PROVIDERS DEFINITION
+       ═══════════════════════════════════════════════════════ -->
+  <maplayers>
+    <maplayer autoRefreshTime="0" hasScaleBasedVisibilityFlag="false" id="stands_polygon_layer" maxScale="0" minScale="1e+08" refreshOnNotifyEnabled="false" refreshOnNotifyMessage="" type="vector">
+      <id>stands_polygon_layer</id>
+      <datasource>dbname='devdb' host=localhost port=5432 user='admin' password='Admin1234!' key='stand_number' srid=4326 type=Polygon table="public"."stands" (gps_coordinates) sql=</datasource>
+      <title>Surveyed Stands (PostGIS)</title>
+      <abstract>Exposes boundary footprints loaded dynamically from the PostgreSQL/PostGIS database container.</abstract>
+      <provider encoding="UTF-8">postgres</provider>
+      <renderer-v2 type="singleSymbol" symbollevels="0" enableorderby="0">
+        <symbols>
+          <symbol type="fill" name="0" alpha="1" clip_to_extent="1">
+            <layer pass="0" class="SimpleFill" locked="0">
+              <prop k="border_width_map_unit_scale" v="3x:0,0,0,0,0,0"/>
+              <prop k="color" v="34,197,94,115"/> <!-- Brand Green (#22C55E) with alpha 115 -->
+              <prop k="joinstyle" v="bevel"/>
+              <prop k="offset" v="0,0"/>
+              <prop k="offset_map_unit_scale" v="3x:0,0,0,0,0,0"/>
+              <prop k="offset_unit" v="MM"/>
+              <prop k="outline_color" v="20,83,45,255"/> <!-- Dark outline (#14532D) -->
+              <prop k="outline_style" v="solid"/>
+              <prop k="outline_width" v="0.6"/>
+              <prop k="outline_width_unit" v="MM"/>
+              <prop k="style" v="solid"/>
+            </layer>
+          </symbol>
+        </symbols>
+      </renderer-v2>
+    </maplayer>
+  </maplayers>
+
+  <!-- Legend and Views mappings -->
+  <Legend updateDrawingOrder="true">
+    <legendgroup open="true" checked="Qt::Checked" name="Zimbabwe Land Layers">
+      <legendlayer open="true" checked="Qt::Checked" showFeatureCount="false" id="stands_polygon_layer" name="Surveyed Stands (PostGIS)"/>
+    </legendgroup>
+  </Legend>
+</qgis>
