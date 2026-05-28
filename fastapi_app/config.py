@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     MYSQL_USER: str = Field("melissa", alias="MYSQL_USER")
     MYSQL_PASSWORD: str = Field("admin@melissa", alias="MYSQL_PASSWORD")
     MYSQL_DB: str = Field("melissa-db", alias="MYSQL_DB")
-    MYSQL_ADMIN_USER: str = Field("melissa", alias="MYSQL_ADMIN_USER")
+    MYSQL_ADMIN_USER: str = Field("root", alias="MYSQL_ADMIN_USER")
     MYSQL_ADMIN_PASSWORD: str = Field("admin@melissa", alias="MYSQL_ADMIN_PASSWORD")
 
     # PostgreSQL Settings

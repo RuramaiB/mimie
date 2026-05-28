@@ -117,6 +117,15 @@ def init_mysql():
     pwd = urllib.parse.quote_plus(settings.MYSQL_ADMIN_PASSWORD)
     admin_url = f"mysql+pymysql://{user}:{pwd}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DB}"
     engine = create_engine(admin_url)
+    
+    # Trust function/trigger creators globally
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SET GLOBAL log_bin_trust_function_creators = 1;"))
+            logger.info("Successfully enabled global log_bin_trust_function_creators.")
+    except Exception as e:
+        logger.warning(f"Could not enable log_bin_trust_function_creators: {e}")
+        
     sql_path = os.path.join("/app", "sql", "mysql", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 
