@@ -443,7 +443,7 @@ def init_mongodb():
             "size_m2": Decimal128("7500.00"),
             "activity": "Commercial",
             "picture_url": "http://images.lands.gov.zw/stands/std-mut-003.png",
-            "gps_coordinates: ": {
+            "gps_coordinates": {
                 "type": "Polygon",
                 "coordinates": [[[32.668, -18.971], [32.674, -18.971], [32.674, -18.976], [32.668, -18.976], [32.668, -18.971]]]
             },
