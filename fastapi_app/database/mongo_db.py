@@ -1,13 +1,16 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
+import urllib.parse
 from config import settings
 
 logger = logging.getLogger("land_system.database.mongo")
 
 # Construct MongoDB URI
 # Authenticates via admin or custom database defined in MONGO_AUTH_DB
-MONGO_URI = f"mongodb://{settings.MONGO_USER}:{settings.MONGO_PASSWORD}@{settings.MONGO_HOST}:{settings.MONGO_PORT}/?authSource={settings.MONGO_AUTH_DB}"
+_user = urllib.parse.quote_plus(settings.MONGO_USER)
+_pwd = urllib.parse.quote_plus(settings.MONGO_PASSWORD)
+MONGO_URI = f"mongodb://{_user}:{_pwd}@{settings.MONGO_HOST}:{settings.MONGO_PORT}/?authSource={settings.MONGO_AUTH_DB}"
 
 # Async Client (Motor)
 async_client = AsyncIOMotorClient(MONGO_URI)

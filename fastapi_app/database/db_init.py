@@ -91,14 +91,18 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
 def init_mysql():
     wait_for_port(settings.MYSQL_HOST, settings.MYSQL_PORT)
     # Connect as root/admin to run schema creations
-    admin_url = f"mysql+pymysql://{settings.MYSQL_ADMIN_USER}:{settings.MYSQL_ADMIN_PASSWORD}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DB}"
+    user = urllib.parse.quote_plus(settings.MYSQL_ADMIN_USER)
+    pwd = urllib.parse.quote_plus(settings.MYSQL_ADMIN_PASSWORD)
+    admin_url = f"mysql+pymysql://{user}:{pwd}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DB}"
     engine = create_engine(admin_url)
     sql_path = os.path.join("/app", "sql", "mysql", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 
 def init_postgres():
     wait_for_port(settings.POSTGRES_HOST, settings.POSTGRES_PORT)
-    admin_url = f"postgresql+psycopg2://{settings.POSTGRES_ADMIN_USER}:{settings.POSTGRES_ADMIN_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+    user = urllib.parse.quote_plus(settings.POSTGRES_ADMIN_USER)
+    pwd = urllib.parse.quote_plus(settings.POSTGRES_ADMIN_PASSWORD)
+    admin_url = f"postgresql+psycopg2://{user}:{pwd}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
     engine = create_engine(admin_url)
     sql_path = os.path.join("/app", "sql", "postgres", "01_schema.sql")
     execute_sql_file(engine, sql_path)
@@ -106,7 +110,9 @@ def init_postgres():
 def init_oracle():
     wait_for_port(settings.ORACLE_HOST, settings.ORACLE_PORT)
     # Using oracledb thin mode admin
-    admin_url = f"oracle+oracledb://{settings.ORACLE_ADMIN_USER}:{settings.ORACLE_ADMIN_PASSWORD}@{settings.ORACLE_HOST}:{settings.ORACLE_PORT}/?service_name={settings.ORACLE_SERVICE}"
+    user = urllib.parse.quote_plus(settings.ORACLE_ADMIN_USER)
+    pwd = urllib.parse.quote_plus(settings.ORACLE_ADMIN_PASSWORD)
+    admin_url = f"oracle+oracledb://{user}:{pwd}@{settings.ORACLE_HOST}:{settings.ORACLE_PORT}/?service_name={settings.ORACLE_SERVICE}"
     engine = create_engine(admin_url)
     sql_path = os.path.join("/app", "sql", "oracle", "01_schema.sql")
     execute_sql_file(engine, sql_path)
@@ -157,7 +163,9 @@ def init_mssql():
 
 def init_mongodb():
     wait_for_port(settings.MONGO_HOST, settings.MONGO_PORT)
-    admin_uri = f"mongodb://{settings.MONGO_ADMIN_USER}:{settings.MONGO_ADMIN_PASSWORD}@{settings.MONGO_HOST}:{settings.MONGO_PORT}/?authSource={settings.MONGO_AUTH_DB}"
+    user = urllib.parse.quote_plus(settings.MONGO_ADMIN_USER)
+    pwd = urllib.parse.quote_plus(settings.MONGO_ADMIN_PASSWORD)
+    admin_uri = f"mongodb://{user}:{pwd}@{settings.MONGO_HOST}:{settings.MONGO_PORT}/?authSource={settings.MONGO_AUTH_DB}"
     client = MongoClient(admin_uri)
     db = client[settings.MONGO_DB]
 

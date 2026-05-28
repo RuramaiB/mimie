@@ -3,6 +3,7 @@ import oracledb
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import Generator
+import urllib.parse
 from config import settings
 
 logger = logging.getLogger("land_system.database.oracle")
@@ -11,7 +12,9 @@ logger = logging.getLogger("land_system.database.oracle")
 # No need to call oracledb.init_oracle_client()
 
 # Construct Oracle connection URL
-ORACLE_URL = f"oracle+oracledb://{settings.ORACLE_USER}:{settings.ORACLE_PASSWORD}@{settings.ORACLE_HOST}:{settings.ORACLE_PORT}/?service_name={settings.ORACLE_SERVICE}"
+_user = urllib.parse.quote_plus(settings.ORACLE_USER)
+_pwd = urllib.parse.quote_plus(settings.ORACLE_PASSWORD)
+ORACLE_URL = f"oracle+oracledb://{_user}:{_pwd}@{settings.ORACLE_HOST}:{settings.ORACLE_PORT}/?service_name={settings.ORACLE_SERVICE}"
 
 engine = create_engine(
     ORACLE_URL,

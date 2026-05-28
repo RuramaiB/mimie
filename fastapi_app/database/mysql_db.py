@@ -2,12 +2,15 @@ import logging
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import Generator
+import urllib.parse
 from config import settings
 
 logger = logging.getLogger("land_system.database.mysql")
 
 # Construct MySQL Connection URI (using PyMySQL)
-MYSQL_URL = f"mysql+pymysql://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DB}"
+_user = urllib.parse.quote_plus(settings.MYSQL_USER)
+_pwd = urllib.parse.quote_plus(settings.MYSQL_PASSWORD)
+MYSQL_URL = f"mysql+pymysql://{_user}:{_pwd}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DB}"
 
 # Initialize pool size and overflow configuration
 engine = create_engine(

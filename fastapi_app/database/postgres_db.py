@@ -2,12 +2,15 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import text
 from typing import AsyncGenerator
+import urllib.parse
 from config import settings
 
 logger = logging.getLogger("land_system.database.postgres")
 
 # Construct PostgreSQL Async connection string using asyncpg
-POSTGRES_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+_user = urllib.parse.quote_plus(settings.POSTGRES_USER)
+_pwd = urllib.parse.quote_plus(settings.POSTGRES_PASSWORD)
+POSTGRES_URL = f"postgresql+asyncpg://{_user}:{_pwd}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
 # Initialize Asynchronous Engine
 engine = create_async_engine(
