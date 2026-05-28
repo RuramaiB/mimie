@@ -206,7 +206,7 @@ def init_mssql():
     wait_for_port(settings.MSSQL_HOST, settings.MSSQL_PORT)
     
     # Candidate PWDs to try in case of persistent volumes with older passwords
-    sa_passwords = [settings.MSSQL_ADMIN_PASSWORD, "Admin1234!", "admin@melissa"]
+    sa_passwords = [settings.MSSQL_ADMIN_PASSWORD, "Admin@melissa", "Admin1234!", "Admin123!", "Admin@123", "admin@melissa"]
     
     master_engine = None
     successful_pwd = None
