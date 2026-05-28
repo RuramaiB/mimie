@@ -3,13 +3,13 @@
 --  Idempotent Script: Runs on database initialization
 -- ═══════════════════════════════════════════════════════
 
-USE devdb;
+USE [melissa-db];
 GO
 
 -- Configure Query Store for Performance Monitoring (Q7 Requirement)
 IF NOT EXISTS (SELECT * FROM sys.database_query_store_options)
 BEGIN
-    ALTER DATABASE devdb SET QUERY_STORE = ON;
+    ALTER DATABASE [melissa-db] SET QUERY_STORE = ON;
 END
 GO
 

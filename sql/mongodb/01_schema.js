@@ -3,7 +3,7 @@
 //  Idempotent script to set up validations and indexes
 // ═══════════════════════════════════════════════════════
 
-db = db.getSiblingDB("devdb");
+db = db.getSiblingDB("melissa-db");
 
 // ═══════════════════════════════════════════════════════
 //  1. COLLECTION SCHEMA VALIDATIONS

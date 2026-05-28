@@ -113,7 +113,34 @@ def init_oracle():
 
 def init_mssql():
     wait_for_port(settings.MSSQL_HOST, settings.MSSQL_PORT)
-    # Using pyodbc admin
+    
+    # 1. Connect to master database to verify/create target database
+    params_master = urllib.parse.quote_plus(
+        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+        f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"
+        f"DATABASE=master;"
+        f"UID={settings.MSSQL_ADMIN_USER};"
+        f"PWD={settings.MSSQL_ADMIN_PASSWORD};"
+        f"Encrypt=yes;"
+        f"TrustServerCertificate=yes;"
+    )
+    master_url = f"mssql+pyodbc:///?odbc_connect={params_master}"
+    master_engine = create_engine(master_url, isolation_level="AUTOCOMMIT")
+    
+    with master_engine.connect() as conn:
+        db_name = settings.MSSQL_DB
+        exists = conn.execute(
+            text("SELECT database_id FROM sys.databases WHERE name = :db_name"),
+            {"db_name": db_name}
+        ).fetchone()
+        
+        if not exists:
+            logger.info(f"MSSQL database '{db_name}' does not exist. Creating database...")
+            # Bracket wrap to securely support hyphenated names
+            conn.execute(text(f"CREATE DATABASE [{db_name}]"))
+            logger.info(f"MSSQL database '{db_name}' created successfully.")
+
+    # 2. Connect to the initialized database to run the schema definitions
     params = urllib.parse.quote_plus(
         f"DRIVER={{ODBC Driver 18 for SQL Server}};"
         f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"

@@ -412,25 +412,29 @@ CREATE INDEX `idx_subdivisions_unallocated` ON `stand_subdivisions` (`allocation
 --  7. DATA PROTECTION & USER SECURITIES
 -- ═══════════════════════════════════════════════════════
 
+-- Melissa User: Full Control
+CREATE USER IF NOT EXISTS 'melissa'@'%' IDENTIFIED BY 'admin@melissa';
+GRANT ALL PRIVILEGES ON `melissa-db`.* TO 'melissa'@'%';
+
 -- Database Administrator: Full Control
 CREATE USER IF NOT EXISTS 'land_admin'@'%' IDENTIFIED BY 'Admin1234!';
-GRANT ALL PRIVILEGES ON `devdb`.* TO 'land_admin'@'%';
+GRANT ALL PRIVILEGES ON `melissa-db`.* TO 'land_admin'@'%';
 
 -- Application User: Executes DML and Procedures
 CREATE USER IF NOT EXISTS 'land_app'@'%' IDENTIFIED BY 'AppPassword123!';
-GRANT SELECT, INSERT, UPDATE, DELETE ON `devdb`.* TO 'land_app'@'%';
-GRANT EXECUTE ON PROCEDURE `devdb`.`sp_allocate_stand` TO 'land_app'@'%';
-GRANT EXECUTE ON PROCEDURE `devdb`.`sp_owner_report` TO 'land_app'@'%';
-GRANT EXECUTE ON PROCEDURE `devdb`.`sp_available_subdivisions` TO 'land_app'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON `melissa-db`.* TO 'land_app'@'%';
+GRANT EXECUTE ON PROCEDURE `melissa-db`.`sp_allocate_stand` TO 'land_app'@'%';
+GRANT EXECUTE ON PROCEDURE `melissa-db`.`sp_owner_report` TO 'land_app'@'%';
+GRANT EXECUTE ON PROCEDURE `melissa-db`.`sp_available_subdivisions` TO 'land_app'@'%';
 
 -- ReadOnly Analyst
 CREATE USER IF NOT EXISTS 'land_readonly'@'%' IDENTIFIED BY 'ReadPass123!';
-GRANT SELECT ON `devdb`.`vw_allocated_stands` TO 'land_readonly'@'%';
-GRANT SELECT ON `devdb`.`vw_owner_portfolio` TO 'land_readonly'@'%';
-GRANT SELECT ON `devdb`.`vw_disability_summary` TO 'land_readonly'@'%';
-GRANT SELECT ON `devdb`.`stands` TO 'land_readonly'@'%';
-GRANT SELECT ON `devdb`.`stand_survey` TO 'land_readonly'@'%';
-GRANT SELECT ON `devdb`.`stand_subdivisions` TO 'land_readonly'@'%';
+GRANT SELECT ON `melissa-db`.`vw_allocated_stands` TO 'land_readonly'@'%';
+GRANT SELECT ON `melissa-db`.`vw_owner_portfolio` TO 'land_readonly'@'%';
+GRANT SELECT ON `melissa-db`.`vw_disability_summary` TO 'land_readonly'@'%';
+GRANT SELECT ON `melissa-db`.`stands` TO 'land_readonly'@'%';
+GRANT SELECT ON `melissa-db`.`stand_survey` TO 'land_readonly'@'%';
+GRANT SELECT ON `melissa-db`.`stand_subdivisions` TO 'land_readonly'@'%';
 
 FLUSH PRIVILEGES;
 

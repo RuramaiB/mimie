@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt .
 
-# Install wheels into a local vendor folder
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Install packages globally in build stage
+RUN pip install --default-timeout=1000 --no-cache-dir -r requirements.txt
 
 
 # ═══════════════════════════════════════════════════════
@@ -44,8 +44,7 @@ RUN mkdir -p /usr/share/keyrings \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy vendor python packages from Builder
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+COPY --from=builder /usr/local /usr/local
 
 # Copy application source code
 COPY . .
