@@ -75,7 +75,7 @@ CREATE TABLE stand_subdivisions (
     remarks CLOB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_subdivisions_stand FOREIGN KEY (stand_number) 
-        REFERENCES stands (stand_number) ON DELETE RESTRICT,
+        REFERENCES stands (stand_number),
     CONSTRAINT chk_subdivision_size CHECK (size_m2 > 0)
 );
 
