@@ -64,6 +64,28 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
             stmt = stmt.strip()
             if stmt and not stmt.startswith("--"):
                 statements.append(stmt)
+    elif "mysql" in filepath.lower():
+        # MySQL supports dynamic DELIMITER statements (e.g. for triggers/procedures)
+        current_delimiter = ";"
+        current_statement = []
+        for line in content.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("--"):
+                continue
+            if stripped.upper().startswith("DELIMITER"):
+                parts_del = stripped.split()
+                if len(parts_del) > 1:
+                    current_delimiter = parts_del[1]
+                continue
+            
+            current_statement.append(line)
+            if stripped.endswith(current_delimiter):
+                stmt_str = "\n".join(current_statement)
+                if stmt_str.strip():
+                    if stmt_str.endswith(current_delimiter):
+                        stmt_str = stmt_str[:-len(current_delimiter)]
+                    statements.append(stmt_str.strip())
+                current_statement = []
     else:
         # Standard SQL splitting by semicolon
         raw_statements = content.split(";")
