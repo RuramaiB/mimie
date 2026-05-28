@@ -199,6 +199,28 @@ def init_oracle():
     pwd = urllib.parse.quote_plus(settings.ORACLE_ADMIN_PASSWORD)
     admin_url = f"oracle+oracledb://{user}:{pwd}@{settings.ORACLE_HOST}:{settings.ORACLE_PORT}/?service_name={settings.ORACLE_SERVICE}"
     engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
+    
+    # Wait for Oracle service registration with listener
+    start_time = time.time()
+    max_wait = 180
+    logger.info(f"Waiting for Oracle XE database service '{settings.ORACLE_SERVICE}' to register with listener...")
+    while True:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1 FROM DUAL"))
+            logger.info(f"Oracle XE database service '{settings.ORACLE_SERVICE}' registered and ready!")
+            break
+        except Exception as e:
+            err_str = str(e)
+            if "DPY-6001" in err_str or "ORA-12514" in err_str or "ORA-12541" in err_str:
+                if time.time() - start_time > max_wait:
+                    logger.error("Timeout waiting for Oracle database service registration.")
+                    raise e
+                logger.info("Oracle service not registered yet. Retrying in 5 seconds...")
+                time.sleep(5)
+            else:
+                raise e
+
     sql_path = os.path.join("/app", "sql", "oracle", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 
