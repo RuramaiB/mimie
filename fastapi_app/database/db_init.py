@@ -51,12 +51,43 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
     # We will handle custom separators if needed.
     statements = []
     if "oracle" in filepath.lower():
-        # Oracle blocks separated by '/'
-        raw_statements = content.split("\n/\n")
-        for stmt in raw_statements:
-            stmt = stmt.strip()
-            if stmt and not stmt.startswith("--"):
-                statements.append(stmt)
+        # Oracle trigger and PL/SQL blocks end with '/', while standard DDL/DML ends with ';'
+        current_statement = []
+        in_plsql = False
+        for line in content.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("--"):
+                continue
+            
+            stripped_upper = stripped.upper()
+            if (
+                stripped_upper.startswith("DECLARE") or 
+                stripped_upper.startswith("BEGIN") or 
+                "TRIGGER" in stripped_upper or 
+                "PACKAGE" in stripped_upper or
+                "PROCEDURE" in stripped_upper or
+                "FUNCTION" in stripped_upper
+            ):
+                in_plsql = True
+            
+            if in_plsql:
+                if stripped == "/":
+                    stmt_str = "\n".join(current_statement)
+                    if stmt_str.strip():
+                        statements.append(stmt_str.strip())
+                    current_statement = []
+                    in_plsql = False
+                else:
+                    current_statement.append(line)
+            else:
+                current_statement.append(line)
+                if stripped.endswith(";"):
+                    stmt_str = "\n".join(current_statement)
+                    if stmt_str.strip():
+                        if stmt_str.endswith(";"):
+                            stmt_str = stmt_str[:-1]
+                        statements.append(stmt_str.strip())
+                    current_statement = []
     elif "mssql" in filepath.lower():
         # MS SQL statements separated by 'GO'
         raw_statements = content.split("GO")
