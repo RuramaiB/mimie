@@ -272,6 +272,16 @@ def init_mssql():
 
     # 1. Connect to master database to verify/create target database and application login
     with master_engine.connect() as conn:
+        # Alter sa password to uniform admin@melissa with CHECK_POLICY = OFF if not already set
+        if successful_pwd != "admin@melissa":
+            try:
+                logger.info("Altering sa login to uniform password 'admin@melissa' with CHECK_POLICY = OFF...")
+                conn.execute(text("ALTER LOGIN sa WITH PASSWORD = 'admin@melissa', CHECK_POLICY = OFF"))
+                successful_pwd = "admin@melissa"
+                logger.info("sa login successfully updated to uniform password 'admin@melissa'.")
+            except Exception as e:
+                logger.warning(f"Could not alter sa login password: {e}")
+
         db_name = settings.MSSQL_DB
         exists = conn.execute(
             text("SELECT database_id FROM sys.databases WHERE name = :db_name"),
