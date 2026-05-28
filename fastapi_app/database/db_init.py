@@ -28,7 +28,7 @@ def wait_for_port(host: str, port: int, timeout: int = 120):
             with socket.create_connection((host, port), timeout=2):
                 logger.info(f"Port {host}:{port} is open!")
                 return True
-        except (socket.timeout, ConnectionRefusedError):
+        except OSError:
             if time.time() - start_time > timeout:
                 logger.error(f"Timeout waiting for {host}:{port}")
                 return False
