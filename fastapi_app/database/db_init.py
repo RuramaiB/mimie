@@ -95,14 +95,14 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
             stripped = line.strip()
             if stripped.upper() == "GO":
                 stmt_str = "\n".join(current_statement).strip()
-                if stmt_str and not stmt_str.startswith("--"):
+                if stmt_str:
                     statements.append(stmt_str)
                 current_statement = []
             else:
                 current_statement.append(line)
         # Add remaining statement if any
         stmt_str = "\n".join(current_statement).strip()
-        if stmt_str and not stmt_str.startswith("--"):
+        if stmt_str:
             statements.append(stmt_str)
     elif "mysql" in filepath.lower():
         # MySQL supports dynamic DELIMITER statements (e.g. for triggers/procedures)
