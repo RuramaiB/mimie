@@ -60,7 +60,7 @@ async def list_dependents(
             dob = doc["date_of_birth"]
             dob_date = dob.date() if isinstance(dob, datetime) else dob
             deps.append(DependentResponse(
-                dependent_id=hash(doc["firstname"]) & 0xffffffff,  // Simulating dependent_id
+                dependent_id=hash(doc["firstname"]) & 0xffffffff,  # Simulating dependent_id
                 stand_owner_id=doc["stand_owner_id"],
                 firstname=doc["firstname"],
                 date_of_birth=dob_date,
