@@ -86,6 +86,27 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
                         stmt_str = stmt_str[:-len(current_delimiter)]
                     statements.append(stmt_str.strip())
                 current_statement = []
+    elif "postgres" in filepath.lower():
+        # PostgreSQL trigger functions are defined inside $$ blocks.
+        # We split by ';' except when we are inside a $$ block.
+        current_statement = []
+        in_dollar_block = False
+        for line in content.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("--"):
+                continue
+            
+            if "$$" in line:
+                occurrences = line.count("$$")
+                if occurrences % 2 != 0:
+                    in_dollar_block = not in_dollar_block
+            
+            current_statement.append(line)
+            if not in_dollar_block and stripped.endswith(";"):
+                stmt_str = "\n".join(current_statement)
+                if stmt_str.strip():
+                    statements.append(stmt_str.strip())
+                current_statement = []
     else:
         # Standard SQL splitting by semicolon
         raw_statements = content.split(";")
@@ -116,7 +137,7 @@ def init_mysql():
     user = urllib.parse.quote_plus(settings.MYSQL_ADMIN_USER)
     pwd = urllib.parse.quote_plus(settings.MYSQL_ADMIN_PASSWORD)
     admin_url = f"mysql+pymysql://{user}:{pwd}@{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DB}"
-    engine = create_engine(admin_url)
+    engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
     
     # Trust function/trigger creators globally
     try:
@@ -134,7 +155,7 @@ def init_postgres():
     user = urllib.parse.quote_plus(settings.POSTGRES_ADMIN_USER)
     pwd = urllib.parse.quote_plus(settings.POSTGRES_ADMIN_PASSWORD)
     admin_url = f"postgresql+psycopg2://{user}:{pwd}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-    engine = create_engine(admin_url)
+    engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
     sql_path = os.path.join("/app", "sql", "postgres", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 
@@ -144,7 +165,7 @@ def init_oracle():
     user = urllib.parse.quote_plus(settings.ORACLE_ADMIN_USER)
     pwd = urllib.parse.quote_plus(settings.ORACLE_ADMIN_PASSWORD)
     admin_url = f"oracle+oracledb://{user}:{pwd}@{settings.ORACLE_HOST}:{settings.ORACLE_PORT}/?service_name={settings.ORACLE_SERVICE}"
-    engine = create_engine(admin_url)
+    engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
     sql_path = os.path.join("/app", "sql", "oracle", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 
@@ -188,7 +209,7 @@ def init_mssql():
         f"TrustServerCertificate=yes;"
     )
     admin_url = f"mssql+pyodbc:///?odbc_connect={params}"
-    engine = create_engine(admin_url)
+    engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
     sql_path = os.path.join("/app", "sql", "mssql", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 
