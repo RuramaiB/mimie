@@ -89,12 +89,21 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
                         statements.append(stmt_str.strip())
                     current_statement = []
     elif "mssql" in filepath.lower():
-        # MS SQL statements separated by 'GO'
-        raw_statements = content.split("GO")
-        for stmt in raw_statements:
-            stmt = stmt.strip()
-            if stmt and not stmt.startswith("--"):
-                statements.append(stmt)
+        # MS SQL statements separated by standalone 'GO' lines
+        current_statement = []
+        for line in content.splitlines():
+            stripped = line.strip()
+            if stripped.upper() == "GO":
+                stmt_str = "\n".join(current_statement).strip()
+                if stmt_str and not stmt_str.startswith("--"):
+                    statements.append(stmt_str)
+                current_statement = []
+            else:
+                current_statement.append(line)
+        # Add remaining statement if any
+        stmt_str = "\n".join(current_statement).strip()
+        if stmt_str and not stmt_str.startswith("--"):
+            statements.append(stmt_str)
     elif "mysql" in filepath.lower():
         # MySQL supports dynamic DELIMITER statements (e.g. for triggers/procedures)
         current_delimiter = ";"
