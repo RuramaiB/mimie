@@ -121,8 +121,8 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
             if not statement or statement.isspace() or statement.upper().startswith("SET FOREIGN_KEY_CHECKS"):
                 continue
             try:
-                # Wrap in text()
-                conn.execute(text(statement))
+                # Execute raw SQL directly on the DBAPI driver to bypass bind parameter parsing (e.g. Oracle XE :NEW/:OLD)
+                conn.exec_driver_sql(statement)
             except Exception as e:
                 # If table drop fails, ignore
                 if "DROP" in statement.upper() or "IF EXISTS" in statement.upper():
