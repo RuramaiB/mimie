@@ -205,7 +205,7 @@ def init_oracle():
 def init_mssql():
     wait_for_port(settings.MSSQL_HOST, settings.MSSQL_PORT)
     
-    # 1. Connect to master database to verify/create target database
+    # 1. Connect to master database as 'sa' to verify/create target database and application login
     params_master = urllib.parse.quote_plus(
         f"DRIVER={{ODBC Driver 18 for SQL Server}};"
         f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"
@@ -231,7 +231,20 @@ def init_mssql():
             conn.execute(text(f"CREATE DATABASE [{db_name}]"))
             logger.info(f"MSSQL database '{db_name}' created successfully.")
 
-    # 2. Connect to the initialized database to run the schema definitions
+        # Create application login 'melissa' with complexity checks disabled
+        app_user = settings.MSSQL_USER
+        app_pwd = settings.MSSQL_PASSWORD
+        login_exists = conn.execute(
+            text("SELECT name FROM sys.server_principals WHERE name = :user"),
+            {"user": app_user}
+        ).fetchone()
+        
+        if not login_exists:
+            logger.info(f"Creating MSSQL login '{app_user}' with CHECK_POLICY = OFF...")
+            conn.execute(text(f"CREATE LOGIN [{app_user}] WITH PASSWORD = '{app_pwd}', CHECK_POLICY = OFF"))
+            logger.info(f"MSSQL login '{app_user}' created successfully.")
+
+    # 2. Connect to the target database as 'sa' to map the database user and assign roles
     params = urllib.parse.quote_plus(
         f"DRIVER={{ODBC Driver 18 for SQL Server}};"
         f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"
@@ -243,6 +256,20 @@ def init_mssql():
     )
     admin_url = f"mssql+pyodbc:///?odbc_connect={params}"
     engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
+    
+    with engine.connect() as conn:
+        app_user = settings.MSSQL_USER
+        user_exists = conn.execute(
+            text("SELECT name FROM sys.database_principals WHERE name = :user"),
+            {"user": app_user}
+        ).fetchone()
+        
+        if not user_exists:
+            logger.info(f"Creating MSSQL database user '{app_user}' and assigning db_owner role...")
+            conn.execute(text(f"CREATE USER [{app_user}] FOR LOGIN [{app_user}]"))
+            conn.execute(text(f"ALTER ROLE db_owner ADD MEMBER [{app_user}]"))
+            logger.info(f"MSSQL database user mapped successfully.")
+
     sql_path = os.path.join("/app", "sql", "mssql", "01_schema.sql")
     execute_sql_file(engine, sql_path)
 

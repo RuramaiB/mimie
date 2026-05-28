@@ -73,7 +73,7 @@ services:
       - MSSQL_HOST=mssql-c
       - MSSQL_PORT=1433
       - MSSQL_ADMIN_USER=sa
-      - MSSQL_ADMIN_PASSWORD=admin@melissa
+      - MSSQL_ADMIN_PASSWORD=Admin@melissa123
       - MSSQL_DB=melissa-db
       - MONGO_HOST=mongodb-c
       - MONGO_PORT=27017

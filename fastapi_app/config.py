@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     MSSQL_PASSWORD: str = Field("admin@melissa", alias="MSSQL_PASSWORD")
     MSSQL_DB: str = Field("melissa-db", alias="MSSQL_DB")
     MSSQL_ADMIN_USER: str = Field("sa", alias="MSSQL_ADMIN_USER")
-    MSSQL_ADMIN_PASSWORD: str = Field("admin@melissa", alias="MSSQL_ADMIN_PASSWORD")
+    MSSQL_ADMIN_PASSWORD: str = Field("Admin@melissa123", alias="MSSQL_ADMIN_PASSWORD")
 
     # MongoDB Settings
     MONGO_HOST: str = Field("mongodb-c", alias="MONGO_HOST")
