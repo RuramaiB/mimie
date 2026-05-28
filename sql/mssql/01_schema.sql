@@ -417,7 +417,7 @@ BEGIN
         BEGIN
             ROLLBACK TRANSACTION;
         END
-        THROW;
+        ;THROW;
     END CATCH
 END;
 GO
