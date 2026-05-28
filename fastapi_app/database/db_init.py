@@ -212,11 +212,11 @@ def init_oracle():
             break
         except Exception as e:
             err_str = str(e)
-            if "DPY-6001" in err_str or "ORA-12514" in err_str or "ORA-12541" in err_str:
+            if "DPY-6001" in err_str or "ORA-12514" in err_str or "ORA-12541" in err_str or "ORA-01109" in err_str or "ORA-01033" in err_str:
                 if time.time() - start_time > max_wait:
                     logger.error("Timeout waiting for Oracle database service registration.")
                     raise e
-                logger.info("Oracle service not registered yet. Retrying in 5 seconds...")
+                logger.info("Oracle service or database not fully open yet. Retrying in 5 seconds...")
                 time.sleep(5)
             else:
                 raise e
