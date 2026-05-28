@@ -84,6 +84,8 @@ def execute_sql_file(engine, filepath: str, split_char: str = ";\n"):
                 if stmt_str.strip():
                     if stmt_str.endswith(current_delimiter):
                         stmt_str = stmt_str[:-len(current_delimiter)]
+                    # PyMySQL interprets '%' as a format specifier; escape it to '%%'
+                    stmt_str = stmt_str.replace("%", "%%")
                     statements.append(stmt_str.strip())
                 current_statement = []
     elif "postgres" in filepath.lower():
