@@ -5,6 +5,8 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 
+import urllib.parse
+
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("atlas_sync")
@@ -13,9 +15,20 @@ logger = logging.getLogger("atlas_sync")
 env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
 load_dotenv(env_path)
 
-LOCAL_MONGO_URI = os.getenv("MONGO_URI", "mongodb://land_app:AppPassword123!@localhost:27017/?authSource=admin")
+# Build dynamic Local Mongo URI with URL-encoded credentials from environment variables
+MONGO_USER = os.getenv("MONGO_USER", "melissa")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "admin@melissa")
+MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
+MONGO_PORT = os.getenv("MONGO_PORT", "27017")
+MONGO_AUTH_DB = os.getenv("MONGO_AUTH_DB", "admin")
+
+_user = urllib.parse.quote_plus(MONGO_USER)
+_pwd = urllib.parse.quote_plus(MONGO_PASSWORD)
+DEFAULT_LOCAL_URI = f"mongodb://{_user}:{_pwd}@{MONGO_HOST}:{MONGO_PORT}/?authSource={MONGO_AUTH_DB}"
+
+LOCAL_MONGO_URI = os.getenv("MONGO_URI", DEFAULT_LOCAL_URI)
 ATLAS_MONGO_URI = os.getenv("MONGODB_ATLAS_URI")
-DB_NAME = os.getenv("MONGO_DB", "devdb")
+DB_NAME = os.getenv("MONGO_DB", "melissa-db")
 
 COLLECTIONS = [
     "stands",
