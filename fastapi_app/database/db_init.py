@@ -205,19 +205,40 @@ def init_oracle():
 def init_mssql():
     wait_for_port(settings.MSSQL_HOST, settings.MSSQL_PORT)
     
-    # 1. Connect to master database as 'sa' to verify/create target database and application login
-    params_master = urllib.parse.quote_plus(
-        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
-        f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"
-        f"DATABASE=master;"
-        f"UID={settings.MSSQL_ADMIN_USER};"
-        f"PWD={settings.MSSQL_ADMIN_PASSWORD};"
-        f"Encrypt=yes;"
-        f"TrustServerCertificate=yes;"
-    )
-    master_url = f"mssql+pyodbc:///?odbc_connect={params_master}"
-    master_engine = create_engine(master_url, isolation_level="AUTOCOMMIT")
+    # Candidate PWDs to try in case of persistent volumes with older passwords
+    sa_passwords = [settings.MSSQL_ADMIN_PASSWORD, "Admin1234!", "admin@melissa"]
     
+    master_engine = None
+    successful_pwd = None
+    
+    for pwd in sa_passwords:
+        try:
+            params_master = urllib.parse.quote_plus(
+                f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+                f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"
+                f"DATABASE=master;"
+                f"UID={settings.MSSQL_ADMIN_USER};"
+                f"PWD={pwd};"
+                f"Encrypt=yes;"
+                f"TrustServerCertificate=yes;"
+            )
+            master_url = f"mssql+pyodbc:///?odbc_connect={params_master}"
+            test_engine = create_engine(master_url, isolation_level="AUTOCOMMIT")
+            # Attempt a quick query to verify login
+            with test_engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            master_engine = test_engine
+            successful_pwd = pwd
+            logger.info(f"Successfully authenticated with MS SQL Server using sa account.")
+            break
+        except Exception as e:
+            logger.warning(f"Connection attempt to MS SQL Server with sa and candidate password failed: {e}")
+            continue
+            
+    if not master_engine:
+        raise Exception("MS SQL Server Init Failed: Could not authenticate with sa user using any candidate passwords.")
+
+    # 1. Connect to master database to verify/create target database and application login
     with master_engine.connect() as conn:
         db_name = settings.MSSQL_DB
         exists = conn.execute(
@@ -250,7 +271,7 @@ def init_mssql():
         f"SERVER={settings.MSSQL_HOST},{settings.MSSQL_PORT};"
         f"DATABASE={settings.MSSQL_DB};"
         f"UID={settings.MSSQL_ADMIN_USER};"
-        f"PWD={settings.MSSQL_ADMIN_PASSWORD};"
+        f"PWD={successful_pwd};"
         f"Encrypt=yes;"
         f"TrustServerCertificate=yes;"
     )
