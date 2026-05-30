@@ -36,8 +36,10 @@ Since Superset joins the same `dbnet` Docker network, use the following connecti
 2. Select **PostgreSQL** from the supported databases.
 3. Enter the SQL-Alchemy URI:
    ```text
-   postgresql://admin:Admin1234!@postgres-db:5432/devdb
+   postgresql://melissa:admin%40melissa@postgres:5432/melissa-db
    ```
+   > [!IMPORTANT]
+   > The PostgreSQL password is `admin@melissa`. The `@` symbol MUST be URL-encoded to `%40` in the SQLAlchemy URI, and the service name is `postgres` (or container `postgres-c`).
 4. Click **Connect** and save.
 
 ---

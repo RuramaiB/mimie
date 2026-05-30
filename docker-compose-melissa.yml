@@ -92,9 +92,11 @@ services:
       - "8088:8088"
     environment:
       - SUPERSET_SECRET_KEY=9a7c36a4f91048b3b4d45d8b725c8397a6e191d918c5e3faef625a62bc2b88dc
+      - SUPERSET_CONFIG_PATH=/app/pythonpath/superset_config.py
       - MAPBOX_API_KEY=""
     volumes:
       - superset_home:/app/superset_home
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py
     networks:
       - dbnet
     restart: always

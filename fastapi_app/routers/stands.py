@@ -364,3 +364,155 @@ async def get_subdivisions_geojson(postgres_db: AsyncSession = Depends(get_postg
         "features": features
     }
 
+import re
+
+@router.put("/{db}/stands/{stand_number}", response_model=StandResponse)
+async def update_stand(
+    db: str,
+    stand_number: str,
+    payload: StandCreate,
+    mysql_db: Session = Depends(get_mysql_db),
+    postgres_db: AsyncSession = Depends(get_postgres_db),
+    oracle_db: Session = Depends(get_oracle_db),
+    mssql_db: Session = Depends(get_mssql_db),
+    mongo_db = Depends(get_mongo_db),
+    current_user = Depends(RoleGuard(["land_app", "land_admin"]))
+):
+    """
+    Updates an existing stand (Requires land_app or land_admin role).
+    """
+    validate_db(db)
+    gps_str = payload.gps_coordinates if isinstance(payload.gps_coordinates, str) else ""
+
+    if db == "postgres":
+        query = text("UPDATE stands SET location = :location, size_m2 = :size_m2, activity = :activity, picture_url = :picture_url, gps_coordinates = ST_GeomFromText(:coords, 4326), location_city = :location_city WHERE stand_number = :stand_number")
+        await postgres_db.execute(query, {
+            "location": payload.location,
+            "size_m2": payload.size_m2,
+            "activity": payload.activity,
+            "picture_url": payload.picture_url,
+            "coords": gps_str,
+            "location_city": payload.location_city,
+            "stand_number": stand_number
+        })
+        await postgres_db.commit()
+        return StandResponse(
+            stand_number=stand_number,
+            location=payload.location,
+            size_m2=payload.size_m2,
+            activity=payload.activity,
+            picture_url=payload.picture_url,
+            gps_coordinates=payload.gps_coordinates,
+            location_city=payload.location_city
+        )
+
+    elif db == "mongodb":
+        from bson.decimal128 import Decimal128
+        coords_list = []
+        if gps_str:
+            match = re.search(r"\(\((.*?)\)\)", gps_str)
+            if match:
+                pts = match.group(1).split(",")
+                coords_list = [[[float(c.split()[0]), float(c.split()[1])] for c in pts]]
+        else:
+            coords_list = payload.gps_coordinates.coordinates
+
+        await mongo_db.stands.update_one(
+            {"stand_number": stand_number},
+            {"$set": {
+                "location": payload.location,
+                "size_m2": Decimal128(str(payload.size_m2)),
+                "activity": payload.activity,
+                "picture_url": payload.picture_url,
+                "gps_coordinates": {
+                    "type": "Polygon",
+                    "coordinates": coords_list
+                },
+                "location_city": payload.location_city
+            }}
+        )
+        return StandResponse(
+            stand_number=stand_number,
+            location=payload.location,
+            size_m2=payload.size_m2,
+            activity=payload.activity,
+            picture_url=payload.picture_url,
+            gps_coordinates=payload.gps_coordinates,
+            location_city=payload.location_city
+        )
+
+    elif db in ("mysql", "oracle"):
+        orm_db = mysql_db if db == "mysql" else oracle_db
+        s = orm_db.query(StandORM).filter(StandORM.stand_number == stand_number).first()
+        if not s:
+            raise HTTPException(status_code=404, detail="Stand not found")
+        s.location = payload.location
+        s.size_m2 = payload.size_m2
+        s.activity = payload.activity
+        s.picture_url = payload.picture_url
+        s.gps_coordinates = gps_str
+        s.location_city = payload.location_city
+        orm_db.commit()
+        return StandResponse.model_validate(s)
+
+    elif db == "mssql":
+        query = text("UPDATE stands SET location = :location, size_m2 = :size_m2, activity = :activity, picture_url = :picture_url, gps_coordinates = geography::STGeomFromText(:coords, 4326), location_city = :location_city WHERE stand_number = :stand_number")
+        mssql_db.execute(query, {
+            "location": payload.location,
+            "size_m2": payload.size_m2,
+            "activity": payload.activity,
+            "picture_url": payload.picture_url,
+            "coords": gps_str,
+            "location_city": payload.location_city,
+            "stand_number": stand_number
+        })
+        mssql_db.commit()
+        return StandResponse(
+            stand_number=stand_number,
+            location=payload.location,
+            size_m2=payload.size_m2,
+            activity=payload.activity,
+            picture_url=payload.picture_url,
+            gps_coordinates=payload.gps_coordinates,
+            location_city=payload.location_city
+        )
+
+@router.delete("/{db}/stands/{stand_number}", status_code=204)
+async def delete_stand(
+    db: str,
+    stand_number: str,
+    mysql_db: Session = Depends(get_mysql_db),
+    postgres_db: AsyncSession = Depends(get_postgres_db),
+    oracle_db: Session = Depends(get_oracle_db),
+    mssql_db: Session = Depends(get_mssql_db),
+    mongo_db = Depends(get_mongo_db),
+    current_user = Depends(RoleGuard(["land_app", "land_admin"]))
+):
+    """
+    Deletes an existing stand (Requires land_app or land_admin role).
+    """
+    validate_db(db)
+
+    if db == "postgres":
+        query = text("DELETE FROM stands WHERE stand_number = :stand_number")
+        await postgres_db.execute(query, {"stand_number": stand_number})
+        await postgres_db.commit()
+
+    elif db == "mongodb":
+        await mongo_db.stands.delete_one({"stand_number": stand_number})
+
+    elif db in ("mysql", "oracle"):
+        orm_db = mysql_db if db == "mysql" else oracle_db
+        s = orm_db.query(StandORM).filter(StandORM.stand_number == stand_number).first()
+        if s:
+            orm_db.delete(s)
+            orm_db.commit()
+
+    elif db == "mssql":
+        query = text("DELETE FROM stands WHERE stand_number = :stand_number")
+        mssql_db.execute(query, {"stand_number": stand_number})
+        mssql_db.commit()
+
+    return None
+
+

@@ -323,4 +323,141 @@ async def create_owner(
             district=payload.district
         )
 
+@router.put("/{db}/owners/{owner_id}", response_model=OwnerResponse)
+async def update_owner(
+    db: str,
+    owner_id: int,
+    payload: OwnerCreate,
+    mysql_db: Session = Depends(get_mysql_db),
+    postgres_db: AsyncSession = Depends(get_postgres_db),
+    oracle_db: Session = Depends(get_oracle_db),
+    mssql_db: Session = Depends(get_mssql_db),
+    mongo_db = Depends(get_mongo_db),
+    current_user = Depends(RoleGuard(["land_app", "land_admin"]))
+):
+    """
+    Updates an existing stand owner (Requires write privileges).
+    """
+    validate_db(db)
+
+    if db == "postgres":
+        query = text("UPDATE stand_owners SET firstname = :first, date_of_birth = :dob, gender = :gender, disability_status = :dis, province = :prov, district = :dist WHERE stand_owner_id = :owner_id")
+        await postgres_db.execute(query, {
+            "first": payload.firstname,
+            "dob": payload.date_of_birth,
+            "gender": payload.gender,
+            "dis": payload.disability_status,
+            "prov": payload.province,
+            "dist": payload.district,
+            "owner_id": owner_id
+        })
+        await postgres_db.commit()
+        return OwnerResponse(
+            stand_owner_id=owner_id,
+            firstname=payload.firstname,
+            date_of_birth=payload.date_of_birth,
+            gender=payload.gender,
+            disability_status=payload.disability_status,
+            province=payload.province,
+            district=payload.district
+        )
+
+    elif db == "mongodb":
+        dob_dt = datetime.combine(payload.date_of_birth, datetime.min.time())
+        await mongo_db.stand_owners.update_one(
+            {"stand_owner_id": owner_id},
+            {"$set": {
+                "firstname": payload.firstname,
+                "date_of_birth": dob_dt,
+                "gender": payload.gender,
+                "disability_status": payload.disability_status,
+                "province": payload.province,
+                "district": payload.district
+            }}
+        )
+        return OwnerResponse(
+            stand_owner_id=owner_id,
+            firstname=payload.firstname,
+            date_of_birth=payload.date_of_birth,
+            gender=payload.gender,
+            disability_status=payload.disability_status,
+            province=payload.province,
+            district=payload.district
+        )
+
+    elif db in ("mysql", "oracle"):
+        orm_db = mysql_db if db == "mysql" else oracle_db
+        o = orm_db.query(StandOwnerORM).filter(StandOwnerORM.stand_owner_id == owner_id).first()
+        if not o:
+            raise HTTPException(status_code=404, detail="Owner not registered")
+        o.firstname = payload.firstname
+        o.date_of_birth = payload.date_of_birth
+        o.gender = payload.gender
+        o.disability_status = payload.disability_status
+        o.province = payload.province
+        o.district = payload.district
+        orm_db.commit()
+        return OwnerResponse.model_validate(o)
+
+    elif db == "mssql":
+        query = text("UPDATE stand_owners SET firstname = :first, date_of_birth = :dob, gender = :gender, disability_status = :dis, province = :prov, district = :dist WHERE stand_owner_id = :owner_id")
+        mssql_db.execute(query, {
+            "first": payload.firstname,
+            "dob": payload.date_of_birth,
+            "gender": payload.gender,
+            "dis": payload.disability_status,
+            "prov": payload.province,
+            "dist": payload.district,
+            "owner_id": owner_id
+        })
+        mssql_db.commit()
+        return OwnerResponse(
+            stand_owner_id=owner_id,
+            firstname=payload.firstname,
+            date_of_birth=payload.date_of_birth,
+            gender=payload.gender,
+            disability_status=payload.disability_status,
+            province=payload.province,
+            district=payload.district
+        )
+
+@router.delete("/{db}/owners/{owner_id}", status_code=204)
+async def delete_owner(
+    db: str,
+    owner_id: int,
+    mysql_db: Session = Depends(get_mysql_db),
+    postgres_db: AsyncSession = Depends(get_postgres_db),
+    oracle_db: Session = Depends(get_oracle_db),
+    mssql_db: Session = Depends(get_mssql_db),
+    mongo_db = Depends(get_mongo_db),
+    current_user = Depends(RoleGuard(["land_app", "land_admin"]))
+):
+    """
+    Deletes an existing stand owner (Requires write privileges).
+    """
+    validate_db(db)
+
+    if db == "postgres":
+        query = text("DELETE FROM stand_owners WHERE stand_owner_id = :owner_id")
+        await postgres_db.execute(query, {"owner_id": owner_id})
+        await postgres_db.commit()
+
+    elif db == "mongodb":
+        await mongo_db.stand_owners.delete_one({"stand_owner_id": owner_id})
+
+    elif db in ("mysql", "oracle"):
+        orm_db = mysql_db if db == "mysql" else oracle_db
+        o = orm_db.query(StandOwnerORM).filter(StandOwnerORM.stand_owner_id == owner_id).first()
+        if o:
+            orm_db.delete(o)
+            orm_db.commit()
+
+    elif db == "mssql":
+        query = text("DELETE FROM stand_owners WHERE stand_owner_id = :owner_id")
+        mssql_db.execute(query, {"owner_id": owner_id})
+        mssql_db.commit()
+
+    return None
+
+
 from datetime import datetime
